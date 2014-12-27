@@ -114,7 +114,7 @@ instance FromJSON [Network] where
   parseJSON _ = error "network must be object"
 
 data Kernel = Kernel
-              { _krnId :: !T.Text
+              { _krnId :: !Int
               , _krnName :: !T.Text
               , _krnVersion :: !T.Text
               } deriving (Show, Eq)
