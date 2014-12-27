@@ -8,6 +8,8 @@ maintainer:          lclarkmichalek@gmail.com
 category:            Network
 build-type:          Simple
 cabal-version:       >=1.10
+extra-source-files:  README.md,
+                     examples/SSHKeyInfo.hs
 
 library
   exposed-modules:     Net.DigitalOcean,
