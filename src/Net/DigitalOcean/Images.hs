@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Net.DigitalOcean.Images (
   Image(..)
   , getImages
@@ -14,6 +15,7 @@ module Net.DigitalOcean.Images (
   ) where
 import qualified Data.Text as T
 import qualified Data.Map as M
+import qualified Data.HashMap.Strict as HM
 import qualified Network.Wreq as W
 import Data.Aeson(FromJSON(..), Value(..), (.:))
 import Control.Applicative
@@ -50,6 +52,13 @@ instance FromJSON Image where
                          x .: "created_at" <*>
                          x .: "min_disk_size"
   parseJSON _ = fail "image must be object"
+
+
+instance FromJSON (Maybe Image) where
+  parseJSON xs@(Object x)
+    | HM.null x = return Nothing
+    | otherwise = fmap Just . parseJSON $ xs
+  parseJSON _ = return Nothing
 
 imagesEndpoint :: String
 imagesEndpoint = "/v2/images/"

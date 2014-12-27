@@ -139,8 +139,8 @@ data Droplet = Droplet
                , _drpBackupIds :: ![T.Text]
                , _drpSnapshotIds :: ![T.Text]
                , _drpFeatures :: ![T.Text]
-               , _drpRegion :: Region
-               , _drpImage :: Image
+               , _drpRegion :: Maybe Region
+               , _drpImage :: Maybe Image
                , _drpNetworks :: [Network]
                , _drpKernel :: Kernel
                } deriving (Show, Eq)

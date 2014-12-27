@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Net.DigitalOcean.Regions (
   Region(..)
   , getRegions
@@ -6,7 +7,8 @@ module Net.DigitalOcean.Regions (
   , rgnName, rgnSlug, rgnSizes, rgnFeatures, rgnAvailable
   ) where
 import qualified Data.Text as T
-import Data.Aeson(FromJSON(..), Value(..), (.:))
+import qualified Data.HashMap.Strict as HM
+import Data.Aeson(FromJSON(..), Value(..), (.:), fromJSON)
 import Control.Applicative
 import Control.Lens hiding (Action)
 
@@ -22,7 +24,7 @@ data Region = Region
               , _rgnSlug :: !T.Text
               , _rgnSizes :: ![T.Text]
               , _rgnFeatures :: ![T.Text]
-              , _rgnAvailable :: !Bool
+              , _rgnAvailable :: Maybe Bool
               } deriving (Show, Eq)
 makeLenses ''Region
 
@@ -34,6 +36,12 @@ instance FromJSON Region where
                          x .: "features" <*>
                          x .: "available"
   parseJSON _ = fail "region must be object"
+
+instance FromJSON (Maybe Region) where
+  parseJSON xs@(Object x)
+    | HM.null x = return Nothing
+    | otherwise = fmap Just . parseJSON $ xs
+  parseJSON _ = return Nothing
 
 -- | Returns a list of all the visible Digital Ocean regions
 --
