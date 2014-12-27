@@ -1,6 +1,7 @@
 module Net.DigitalOcean.Config (
   Config(..)
   , confAuth
+  -- * Utility/Helpers
   , options
   ) where
 
@@ -13,5 +14,7 @@ data Config = Config { _confAuth :: !T.Text } deriving (Show, Eq)
 
 makeLenses ''Config
 
+-- | Generate a Wreq 'W.Options' instance from the given 'Config'. Can be
+-- further modified to set additional parameters, headers, etc
 options :: Config -> W.Options
 options c = W.defaults & W.auth ?~ W.basicAuth (encodeUtf8 $ c ^. confAuth) ""

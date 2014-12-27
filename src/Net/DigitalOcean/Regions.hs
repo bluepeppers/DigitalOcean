@@ -1,8 +1,9 @@
 module Net.DigitalOcean.Regions (
   Region(..)
-  , rgnName, rgnSlug, rgnSizes, rgnFeatures, rgnAvailable
-
   , getRegions
+
+  -- ** Lens Accessors
+  , rgnName, rgnSlug, rgnSizes, rgnFeatures, rgnAvailable
   ) where
 import qualified Data.Text as T
 import Data.Aeson(FromJSON(..), Value(..), (.:))
@@ -15,7 +16,7 @@ import Control.Monad.Error.Class (MonadError, Error)
 import Net.DigitalOcean.Request (get)
 import Net.DigitalOcean.Config (Config)
 
-
+-- | A Digital Ocean region
 data Region = Region
               { _rgnName :: !T.Text
               , _rgnSlug :: !T.Text
@@ -34,6 +35,9 @@ instance FromJSON Region where
                          x .: "available"
   parseJSON _ = fail "region must be object"
 
+-- | Returns a list of all the visible Digital Ocean regions
+--
+-- <https://developers.digitalocean.com/#list-all-regions DO documentation>
 getRegions :: (Error e, MonadError e m, MonadIO m) =>
               Config -> m [Region]
 getRegions = get "/v2/regions/" "regions"

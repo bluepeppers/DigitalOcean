@@ -1,18 +1,37 @@
 {-# LANGUAGE FlexibleInstances #-}
 module Net.DigitalOcean.Droplets (
   Network
+  , Kernel
+  , Droplet
+  , Snapshot
+  , Backup
+  , DropletAction(..)
+  , DropletCreationOpts
+
+  , createDroplet
+  , getDroplet
+  , getDroplets
+  , getDropletKernels
+  , getDropletSnapshots
+  , getDropletBackups
+  , getDropletActions
+  , deleteDroplet
+  , performDropletAction
+
+  -- * Droplet creation options
+  , defaultDCO
+
+  -- * Lens Accessors
   , netProto
   , netIpAddr
   , netNetmask
   , netGateway
   , netType
 
-  , Kernel
   , krnId
   , krnName
   , krnVersion
 
-  , Droplet
   , drpId
   , drpName
   , drpMemory
@@ -29,7 +48,6 @@ module Net.DigitalOcean.Droplets (
   , drpNetworks
   , drpKernel
 
-  , Snapshot
   , snpId
   , snpName
   , snpDist
@@ -37,7 +55,6 @@ module Net.DigitalOcean.Droplets (
   , snpPublic
   , snpRegions
 
-  , Backup
   , bckId
   , bckName
   , bckDist
@@ -45,9 +62,6 @@ module Net.DigitalOcean.Droplets (
   , bckPublic
   , bckRegions
 
-  , DropletAction(..)
-
-  , DropletCreationOpts
   , dcoName
   , dcoRegion
   , dcoSize
@@ -58,17 +72,6 @@ module Net.DigitalOcean.Droplets (
   , dcoPrivateNetworking
   , dcoUserData
 
-  , defaultDCO
-
-  , createDroplet
-  , getDroplet
-  , getDroplets
-  , getDropletKernels
-  , getDropletSnapshots
-  , getDropletBackups
-  , getDropletActions
-  , deleteDroplet
-  , performDropletAction
   ) where
 
 import qualified Data.Text as T
@@ -228,7 +231,10 @@ instance ToJSON DropletCreationOpts where
                  , fmap ("ssh_keys" .=) (d ^. dcoSSHKeys)
                  ]
 
--- Droplet without backups, with ipv6 and with private networking
+-- | Creates a basic Droplet creation options object with ipv6 and private
+-- networking enabled, and without backups, user data or ssh keys.
+--
+-- Can and should be further modified before passing to 'createDroplet'
 defaultDCO :: T.Text -> T.Text -> T.Text -> T.Text -> DropletCreationOpts
 defaultDCO n r s i = DropletCreationOpts n r s i Nothing False True True Nothing
 
@@ -272,6 +278,9 @@ deleteDroplet = delete . dropletEndpoint
 
 -- TODO: Get droplet upgrades returns a list...
 
+-- | The various actions that can be performed on a droplet
+--
+-- <https://developers.digitalocean.com/#droplet-actions DO documentation>
 data DropletAction
   = DisableBackups
   | Reboot
@@ -311,6 +320,7 @@ instance ToJSON DropletAction where
   toJSON (SnapshotDrp n) = mType "snapshot" [("snapshot", toJSON n)]
   toJSON Upgrade = mType "migrate_droplet" []
 
+-- | Perform an action on the droplet with the given ID
 performDropletAction :: (Error e, MonadError e m, MonadIO m) =>
                         T.Text -> DropletAction -> Config -> m Action
 performDropletAction n = post (dropletEndpoint n ++ "/actions") "action"

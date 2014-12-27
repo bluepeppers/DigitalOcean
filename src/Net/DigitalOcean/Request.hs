@@ -1,11 +1,12 @@
  {-# LANGUAGE DeriveGeneric #-}
 module Net.DigitalOcean.Request (
+  -- | * Request wrappers
   get,
   post,
   put,
   delete,
 
-  -- For when the provided methods don't do enough (so quite often)
+  -- | * Lower level methods
   handleResp,
   url
   ) where
@@ -35,7 +36,7 @@ instance FromJSON ResponseError
 baseUrl :: String
 baseUrl = "https://api.digitalocean.com"
 
--- Get the url for an endpoint
+-- | Get the url for an endpoint
 url :: String -> String
 url = (++) baseUrl
 
@@ -56,6 +57,8 @@ ensureValidResponse r =
        throwError . strMsg $ "Err: " ++ respErr err ++ "\nSC: " ++ show sc ++ "\nDesc: " ++
          respDesc err
 
+-- | Given a raw response, extract the json element "key", and then parse.
+-- Also error should the status code != 2xx
 handleResp :: (FromJSON a, Error e, MonadError e m, MonadIO m) =>
               String -> W.Response ByteString -> m a
 handleResp key r = do
@@ -67,21 +70,24 @@ handleResp key r = do
       Nothing -> throwError . strMsg $ "No key " ++ key ++ " in response"
     _ -> throwError . strMsg $ "Response was not object"
 
-
+-- | Send a GET request to the given endpoint, and parse the result via 'handleResp'
 get :: (FromJSON a, Error e, MonadError e m, MonadIO m) =>
        String -> String -> Config -> m a
 get e k c = liftIO (W.getWith (options c) (url e)) >>=
             handleResp k
 
+-- | Send a POST request to the given endpoint, and parse the result via 'handleResp'
 post :: (ToJSON a, FromJSON b, Error e, MonadError e m, MonadIO m) =>
         String -> String -> a -> Config -> m b
 post e k b c = liftIO (W.postWith (options c) (url e) (toJSON b)) >>=
                handleResp k
 
+-- | Send a PUT request to the given endpoint, and parse the result via 'handleResp'
 put :: (ToJSON a, FromJSON b, Error e, MonadError e m, MonadIO m) =>
        String -> String -> a -> Config -> m b
 put e k b c = liftIO (W.putWith (options c) (url e) (toJSON b)) >>=
               handleResp k
 
+-- | Send a DELETE request to the given endpoint, and parse the result via 'handleResp'
 delete :: (Error e, MonadError e m, MonadIO m) => String -> Config -> m ()
 delete e c = liftIO (W.getWith (options c) (url e)) >>= ensureValidResponse
