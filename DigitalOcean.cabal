@@ -10,8 +10,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Net.DigitalOcean
-  other-modules:       Net.DigitalOcean.Actions,
+  exposed-modules:     Net.DigitalOcean,
+                       Net.DigitalOcean.Actions,
                        Net.DigitalOcean.Regions,
                        Net.DigitalOcean.Sizes,
                        Net.DigitalOcean.Images,
