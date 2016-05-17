@@ -54,12 +54,6 @@ instance FromJSON Image where
   parseJSON _ = fail "image must be object"
 
 
-instance FromJSON (Maybe Image) where
-  parseJSON xs@(Object x)
-    | HM.null x = return Nothing
-    | otherwise = fmap Just . parseJSON $ xs
-  parseJSON _ = return Nothing
-
 imagesEndpoint :: String
 imagesEndpoint = "/v2/images/"
 
