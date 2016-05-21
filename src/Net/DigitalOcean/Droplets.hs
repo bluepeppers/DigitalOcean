@@ -142,7 +142,7 @@ data Droplet = Droplet
                , _drpRegion :: Maybe Region
                , _drpImage :: Maybe Image
                , _drpNetworks :: [Network]
-               , _drpKernel :: Kernel
+               , _drpKernel :: Maybe Kernel
                } deriving (Show, Eq)
 makeLenses ''Droplet
 
