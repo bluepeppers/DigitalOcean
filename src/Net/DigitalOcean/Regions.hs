@@ -37,12 +37,6 @@ instance FromJSON Region where
                          x .: "available"
   parseJSON _ = fail "region must be object"
 
-instance FromJSON (Maybe Region) where
-  parseJSON xs@(Object x)
-    | HM.null x = return Nothing
-    | otherwise = fmap Just . parseJSON $ xs
-  parseJSON _ = return Nothing
-
 -- | Returns a list of all the visible Digital Ocean regions
 --
 -- <https://developers.digitalocean.com/#list-all-regions DO documentation>
