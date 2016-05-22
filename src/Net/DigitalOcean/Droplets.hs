@@ -101,8 +101,8 @@ data Network = Network
 makeLenses ''Network
 
 instance FromJSON [Network] where
-  parseJSON (Object obj) = sequence . concat $ mapM parseEntry (HM.toList obj)
-    where parseEntry (ty, Array vals) = map (parseNetwork ty) (V.toList vals)
+  parseJSON (Object obj) = concat <$> sequence (map parseEntry (HM.toList obj))
+    where parseEntry (ty, Array vals) = mapM (parseNetwork ty) (V.toList vals)
           parseEntry _ = error "network list must be arr"
           parseNetwork ty (Object n) =
             Network ty <$>
